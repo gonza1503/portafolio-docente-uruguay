@@ -1,22 +1,22 @@
-# Stage 1: Build PHP dependencies using Composer
+# Stage 1: instala dependencias PHP usando Composer
 FROM composer:2 AS composer-deps
 WORKDIR /var/www/html
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
-# Stage 2: Build assets using Node
+# Stage 2: compila los assets con Node
 FROM node:18 AS node-build
 WORKDIR /var/www/html
-COPY package.json package-lock.json ./
+COPY package.json ./
 RUN npm install
 COPY resources resources
 COPY vite.config.js tailwind.config.js ./
 RUN npm run build
 
-# Stage 3: Prepare production image with PHP-FPM
+# Stage 3: imagen final con PHP-FPM
 FROM php:8.3-fpm
 
-# Install system dependencies
+# Instala extensiones y utilidades del sistema
 RUN apt-get update \
     && apt-get install -y \
         libpng-dev \
@@ -28,20 +28,21 @@ RUN apt-get update \
     && docker-php-ext-install pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd zip \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# Establece el directorio de trabajo
 WORKDIR /var/www/html
 
-# Copy application source
+# Copia el código de la aplicación
 COPY . .
 
-# Copy composer dependencies
+# Copia las dependencias de Composer desde la etapa 1
 COPY --from=composer-deps /var/www/html/vendor ./vendor
 
-# Copy built assets
+# Copia los assets compilados desde la etapa 2
 COPY --from=node-build /var/www/html/public ./public
 
-# Expose port 8000 for php built-in server
+# Expone el puerto 8000 para el servidor de desarrollo
 EXPOSE 8000
 
-# Command to run migrations and start the server
+# Ejecuta migraciones y lanza el servidor
 CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000
+

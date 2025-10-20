@@ -1,0 +1,30 @@
+{
+    "name": "portafolio-docente-uruguay/portafolio-docente-uruguay",
+    "description": "Portafolio Docente Uruguay – Aplicación web para gestionar el portafolio docente de instituciones educativas uruguayas.",
+    "type": "project",
+    "require": {
+        "php": "^8.3",
+        "laravel/framework": "^11.0",
+        "spatie/laravel-permission": "^6.3",
+        "barryvdh/laravel-dompdf": "^2.0",
+        "maatwebsite/excel": "^4.0",
+        "spatie/laravel-activitylog": "^4.0",
+        "laravel/sanctum": "^3.0",
+        "inertiajs/inertia-laravel": "^0.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        },
+        "classmap": [
+            "database/seeders",
+            "database/factories"
+        ]
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ]
+    }
+}
